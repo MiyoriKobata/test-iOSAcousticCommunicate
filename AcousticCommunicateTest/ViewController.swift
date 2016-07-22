@@ -10,27 +10,70 @@ import UIKit
 import AudioToolbox
 import AudioUnit
 import AVFoundation
+// import Accelerate
 
 
-class ViewController: UIViewController {
+@objc class ViewController: UIViewController {
 
     let SAMPLE_RATE = 44100.0;
+    let FFT_SAMPLE_SIZE = 256;
     
     
     @IBOutlet weak var mFrequenctyInputField: UITextField!
     @IBOutlet weak var mPlayButton: UIButton!
     @IBOutlet weak var mCaptureButton: UIButton!
     
+    var mWaveGraph: WaveGraph?
+    
     
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
         
+        let w = view.bounds.width
+        let h = view.bounds.height
+        mWaveGraph = WaveGraph(frame: CGRect(x: 0.0, y: 50.0, width: w, height: h - 50.0))
+        mWaveGraph?.setup(100)
+
+        view.addSubview(mWaveGraph!)
+        
         mFrequenctyInputField.text = String(mFrequency)
         mPlayButton.setTitle("Play", forState: UIControlState.Normal)
+        mCaptureButton.setTitle("Capture", forState: UIControlState.Normal)
         
         initPlayUnit()
         initCaptureUnit()
+        setupAudioSession()
+        
+        NSTimer.scheduledTimerWithTimeInterval(0.1, // 0.03,
+                                               target: self,
+                                               selector: #selector(drawWaveGraph(_:)),
+                                               userInfo: nil,
+                                               repeats: true)
+    }
+    
+    private func setupAudioSession() {
+        // Set category and activate audio session
+        let session = AVAudioSession.sharedInstance()
+        do {
+            try session.setPreferredIOBufferDuration(NSTimeInterval(0.005))
+        } catch {
+            print("AVAudioSession setPreferredIOBufferDuration failed")
+            return
+        }
+
+        do {
+            try session.setPreferredSampleRate(SAMPLE_RATE)
+        } catch {
+            print("AVAudioSession setPreferredSampleRate failed")
+            return
+        }
+        
+        print("setup audio session complete")
+    }
+    
+    func drawWaveGraph(timer: NSTimer) {
+        mWaveGraph?.setNeedsDisplay()
     }
     
     override func didReceiveMemoryWarning() {
@@ -46,7 +89,7 @@ class ViewController: UIViewController {
     var mFrequency = 440.0
     var mPhase = 0.0
     
-    func initPlayUnit() {
+    private func initPlayUnit() {
         // Instantiate audio unit
         var description = AudioComponentDescription(componentType: kAudioUnitType_Output,
                                                     componentSubType: kAudioUnitSubType_RemoteIO,
@@ -61,21 +104,6 @@ class ViewController: UIViewController {
             return
         }
         
-        // Set audio unit property
-        let audioFormat = AVAudioFormat(standardFormatWithSampleRate: SAMPLE_RATE, channels: 1)
-        var streamDescription = audioFormat.streamDescription.memory
-        
-        status = AudioUnitSetProperty(mPlayUnit,
-                                      kAudioUnitProperty_StreamFormat,
-                                      kAudioUnitScope_Input,
-                                      0,
-                                      &streamDescription,
-                                      SizeOf32(streamDescription))
-        if status != noErr {
-            print("AudioUnitSetProperty kAudioUnitProperty_StreamFormat kAudioUnitScope_Input failed: \(status)");
-            return
-        }
-        
         // Setup audio render callback
         let callback: AURenderCallback = {
             (inRefCon: UnsafeMutablePointer<Void>,
@@ -87,10 +115,9 @@ class ViewController: UIViewController {
             
             let viewController = unsafeBitCast(inRefCon, ViewController.self)
             let audioBufferList = UnsafeMutableAudioBufferListPointer(ioData)
-            let audioBuffer = audioBufferList[0]
-            let buffer = unsafeBitCast(audioBuffer.mData, UnsafeMutablePointer<Float>.self)
-
-            return viewController.playRender(buffer, numberFrames: Int(inNumberFrames))
+            let buffer = unsafeBitCast(audioBufferList[0].mData, UnsafeMutablePointer<Float>.self)
+            
+            return viewController.renderPlayBuffer(buffer, numFrames: Int(inNumberFrames))
         }
         let selfPointer = unsafeBitCast(self, UnsafeMutablePointer<Void>.self)
         var callbackStruct = AURenderCallbackStruct(inputProc: callback, inputProcRefCon: selfPointer)
@@ -100,9 +127,34 @@ class ViewController: UIViewController {
                                       kAudioUnitScope_Input,
                                       0,
                                       &callbackStruct,
-                                      SizeOf32(callbackStruct))
+                                      UInt32(sizeof(AURenderCallbackStruct)))
         if status != noErr {
             print("AudioUnitSetProperty kAudioUnitProperty_SetRenderCallback kAudioUnitScope_Input failed: \(status)")
+            return
+        }
+        
+        // Set audio unit property
+        let formatFlags = AudioFormatFlags(kAudioFormatFlagsNativeEndian | kAudioFormatFlagIsPacked |
+            kAudioFormatFlagIsFloat | kAudioFormatFlagIsNonInterleaved)
+        let frameSize = UInt32(sizeof(Float));
+        var formatDescription = AudioStreamBasicDescription(mSampleRate: SAMPLE_RATE,
+                                                            mFormatID: kAudioFormatLinearPCM,
+                                                            mFormatFlags: formatFlags,
+                                                            mBytesPerPacket: frameSize,
+                                                            mFramesPerPacket: 1,
+                                                            mBytesPerFrame: frameSize,
+                                                            mChannelsPerFrame: 1,
+                                                            mBitsPerChannel: frameSize * 8,
+                                                            mReserved: 0)
+        
+        status = AudioUnitSetProperty(mPlayUnit,
+                                      kAudioUnitProperty_StreamFormat,
+                                      kAudioUnitScope_Input,
+                                      0,
+                                      &formatDescription,
+                                      UInt32(sizeof(AudioStreamBasicDescription)))
+        if status != noErr {
+            print("AudioUnitSetProperty kAudioUnitProperty_StreamFormat kAudioUnitScope_Input failed: \(status)");
             return
         }
         
@@ -113,21 +165,22 @@ class ViewController: UIViewController {
             return
         }
         
-
         print("initializing play audio unit complete!")
     }
 
-    func playRender(buffer: UnsafeMutablePointer<Float>, numberFrames: Int) -> OSStatus {
-        var phase: Float = Float(mPhase)
-        let delta: Float = Float(mFrequency * M_PI * 2 / SAMPLE_RATE)
+    private func renderPlayBuffer(buffer: UnsafeMutablePointer<Float>, numFrames: Int) -> OSStatus {
+        var phase = mPhase
+        let delta = mFrequency * M_PI * 2 / SAMPLE_RATE
         
         // Iterate all samples
-        for i in 0 ..< numberFrames {
-            buffer[i] = sinf(phase)
+        for i in 0 ..< numFrames {
+            buffer[i] = Float(sin(phase))
             phase += delta
         }
         
-        mPhase = fmod(Double(phase), M_PI * 2)
+        mPhase = fmod(phase, M_PI * 2)
+        
+        mWaveGraph?.writeBuffer(buffer, length: numFrames)
         
         return noErr
     }
@@ -138,13 +191,13 @@ class ViewController: UIViewController {
                 mFrequency = frequency
             }
             
-            playAudio()
+            startPlay()
         } else {
-            stopAudio()
+            stopPlay()
         }
     }
     
-    func playAudio() {
+    private func startPlay() {
         // Set category and activate audio session
         let session = AVAudioSession.sharedInstance()
         do {
@@ -174,9 +227,10 @@ class ViewController: UIViewController {
         print("start playing audio!")
         
         mPlayButton.setTitle("Stop", forState: UIControlState.Normal)
+        mCaptureButton.enabled = false
     }
     
-    func stopAudio() {
+    private func stopPlay() {
         // Stop audio unit
         let status = AudioOutputUnitStop(mPlayUnit)
         if status == noErr {
@@ -196,14 +250,16 @@ class ViewController: UIViewController {
         mPlaying = false
         
         mPlayButton.setTitle("Play", forState: UIControlState.Normal)
+        mCaptureButton.enabled = true
     }
     
     
     // -- implementations for capturing audio --
     
     var mCaptureUnit: AudioUnit = nil
+    var mCapturing = false
     
-    func initCaptureUnit() {
+    private func initCaptureUnit() {
         // Instantiate audio unit
         var description = AudioComponentDescription(componentType: kAudioUnitType_Output,
                                                     componentSubType: kAudioUnitSubType_RemoteIO,
@@ -218,81 +274,7 @@ class ViewController: UIViewController {
             return
         }
         
-        // Set audio unit properties
-        var value: UInt32 = 1;
-        status = AudioUnitSetProperty(mCaptureUnit,
-                                      kAudioOutputUnitProperty_EnableIO,
-                                      kAudioUnitScope_Input,
-                                      1,
-                                      &value,
-                                      SizeOf32(value))
-        if status != noErr {
-            print("AudioUnitSetProperty kAudioOutputUnitProperty_EnableIO kAudioUnitScope_Input failed: \(status)")
-            return
-        }
-
-        status = AudioUnitSetProperty(mCaptureUnit,
-                                      kAudioOutputUnitProperty_EnableIO,
-                                      kAudioUnitScope_Output,
-                                      0,
-                                      &value,
-                                      SizeOf32(value))
-        if status != noErr {
-            print("AudioUnitSetProperty kAudioOutputUnitProperty_EnableIO kAudioUnitScope_Output failed: \(status)")
-            return
-        }
-        
-        var audioStreamDescription = CAStreamBasicDescription(sampleRate: SAMPLE_RATE,
-                                                              numChannels: 1,
-                                                              pcmf: CAStreamBasicDescription.CommonPCMFormat.Float32,
-                                                              isInterleaved: false)
-        status = AudioUnitSetProperty(mCaptureUnit,
-                                      kAudioUnitProperty_StreamFormat,
-                                      kAudioUnitScope_Output,
-                                      1,
-                                      &audioStreamDescription,
-                                      SizeOf32(audioStreamDescription))
-        if status != noErr {
-            print("AudioUnitSetProperty kAudioUnitProperty_StreamFormat kAudioUnitScope_Output failed: \(status)")
-            return
-        }
-        
-        status = AudioUnitSetProperty(mCaptureUnit,
-                                      kAudioUnitProperty_StreamFormat,
-                                      kAudioUnitScope_Input,
-                                      0,
-                                      &audioStreamDescription,
-                                      SizeOf32(audioStreamDescription))
-        if status != noErr {
-            print("AudioUnitSetProperty kAudioUnitProperty_StreamFormat kAudioUnitScope_Input failed: \(status)")
-            return
-        }
-        
-        var maxFramesPerSlice: UInt32 = 4096
-        status = AudioUnitSetProperty(mCaptureUnit,
-                                      kAudioUnitProperty_MaximumFramesPerSlice,
-                                      kAudioUnitScope_Global,
-                                      0,
-                                      &maxFramesPerSlice,
-                                      SizeOf32(maxFramesPerSlice))
-        if status != noErr {
-            print("AudioUnitSetProperty kAudioUnitProperty_MaximumFramesPerSlice kAudioUnitScope_Global failed: \(status)")
-            return
-        }
-        
-        var size = SizeOf32(maxFramesPerSlice)
-        status = AudioUnitGetProperty(mCaptureUnit,
-                                      kAudioUnitProperty_MaximumFramesPerSlice,
-                                      kAudioUnitScope_Global,
-                                      0,
-                                      &maxFramesPerSlice,
-                                      &size)
-        if status != noErr {
-            print("AudioUnitGetProperty kAudioUnitProperty_MaximumFramesPerSlice kAudioUnitScope_Global failed: \(status)")
-            return;
-        }
-        
-        // Setup audio render callback
+        // Set audio input callback
         let callback: AURenderCallback = {
             (inRefCon: UnsafeMutablePointer<Void>,
             ioActionFlags: UnsafeMutablePointer<AudioUnitRenderActionFlags>,
@@ -301,23 +283,93 @@ class ViewController: UIViewController {
             inNumberFrames: UInt32,
             ioData: UnsafeMutablePointer<AudioBufferList>) -> OSStatus in
             
-            // Render callback
+            // input callback
+            let viewController = unsafeBitCast(inRefCon, ViewController.self)
             
-            // todo
+            let buffer = UnsafeMutablePointer<Float>.alloc(Int(inNumberFrames))
+            let audioBuffer = AudioBuffer(mNumberChannels: 1,
+                                          mDataByteSize: UInt32(sizeof(Float)) * inNumberFrames,
+                                          mData: buffer)
+            var audioBufferList = AudioBufferList(mNumberBuffers: 1, mBuffers: audioBuffer)
             
-            return noErr
+            var status = AudioUnitRender(viewController.mCaptureUnit,
+                                         ioActionFlags,
+                                         inimeStamp,
+                                         inBusNumber,
+                                         inNumberFrames,
+                                         &audioBufferList)
+            if status != noErr {
+                print("AudioUnitRender failed: \(status)")
+                return status
+            }
+            
+            status = viewController.renderCaptureBuffer(buffer, numFrames: Int(inNumberFrames));
+            
+            buffer.dealloc(Int(inNumberFrames))
+            
+            return status;
         }
         let selfPointer = unsafeBitCast(self, UnsafeMutablePointer<Void>.self)
         var callbackStruct = AURenderCallbackStruct(inputProc: callback, inputProcRefCon: selfPointer)
         
         status = AudioUnitSetProperty(mCaptureUnit,
-                                      kAudioUnitProperty_SetRenderCallback,
-                                      kAudioUnitScope_Input,
-                                      0,
+                                      kAudioOutputUnitProperty_SetInputCallback,
+                                      kAudioUnitScope_Global,
+                                      1,
                                       &callbackStruct,
-                                      SizeOf32(callbackStruct))
+                                      UInt32(sizeof(AudioStreamBasicDescription)))
         if status != noErr {
             print("AudioUnitSetProperty kAudioUnitProperty_SetRenderCallback kAudioUnitScope_Input failed: \(status)")
+            return
+        }
+        
+        // Set audio unit properties
+        var value: UInt32 = 1;
+        status = AudioUnitSetProperty(mCaptureUnit,
+                                      kAudioOutputUnitProperty_EnableIO,
+                                      kAudioUnitScope_Input,
+                                      1,
+                                      &value,
+                                      UInt32(sizeof(UInt32)))
+        if status != noErr {
+            print("AudioUnitSetProperty kAudioOutputUnitProperty_EnableIO kAudioUnitScope_Input failed: \(status)")
+            return
+        }
+
+        value = 0
+        status = AudioUnitSetProperty(mCaptureUnit,
+                                      kAudioOutputUnitProperty_EnableIO,
+                                      kAudioUnitScope_Output,
+                                      0,
+                                      &value,
+                                      UInt32(sizeof(UInt32)))
+        if status != noErr {
+            print("AudioUnitSetProperty kAudioOutputUnitProperty_EnableIO kAudioUnitScope_Output failed: \(status)")
+            return
+        }
+        
+        // Set audio format
+        let formatFlags = AudioFormatFlags(kAudioFormatFlagsNativeEndian | kAudioFormatFlagIsPacked |
+            kAudioFormatFlagIsFloat | kAudioFormatFlagIsNonInterleaved)
+        let frameSize = UInt32(sizeof(Float));
+        var formatDescription = AudioStreamBasicDescription(mSampleRate: SAMPLE_RATE,
+                                                            mFormatID: kAudioFormatLinearPCM,
+                                                            mFormatFlags: formatFlags,
+                                                            mBytesPerPacket: frameSize,
+                                                            mFramesPerPacket: 1,
+                                                            mBytesPerFrame: frameSize,
+                                                            mChannelsPerFrame: 1,
+                                                            mBitsPerChannel: frameSize * 8,
+                                                            mReserved: 0)
+
+        status = AudioUnitSetProperty(mCaptureUnit,
+                                      kAudioUnitProperty_StreamFormat,
+                                      kAudioUnitScope_Output,
+                                      1,
+                                      &formatDescription,
+                                      UInt32(sizeof(AudioStreamBasicDescription)))
+        if status != noErr {
+            print("AudioUnitSetProperty kAudioUnitProperty_StreamFormat kAudioUnitScope_Output failed: \(status)")
             return
         }
         
@@ -331,6 +383,75 @@ class ViewController: UIViewController {
         print("initializing capture audio unit complete!")
     }
     
+    private func renderCaptureBuffer(buffer: UnsafeMutablePointer<Float>, numFrames: Int) -> OSStatus {
+        // need DC rejection ??
+        
+        mWaveGraph?.writeBuffer(buffer, length: numFrames)
+        
+        return noErr
+    }
+    
+    @IBAction func captureButtonTouchDown(sender: AnyObject) {
+        if !mCapturing {
+            startCapture()
+        } else {
+            stopCapture();
+        }
+    }
+    
+    private func startCapture() {
+        // Set category and activate audio session
+        let session = AVAudioSession.sharedInstance()
+        do {
+            try session.setCategory(AVAudioSessionCategoryRecord)
+        } catch {
+            print("AVAudioSession setCategory AVAudioSessionCategoryRecord failed")
+            return
+        }
+        
+        do {
+            try session.setActive(true)
+        } catch {
+            print("AVAudioSession setActivate true failed")
+            return
+        }
+        
+        // Start audio unit
+        let status = AudioOutputUnitStart(mCaptureUnit)
+        if status != noErr {
+            print("AudioOutputUnitStart failed: \(status)")
+            return
+        }
+        
+        mCapturing = true
+        print("start capturing audio!")
+        
+        mCaptureButton.setTitle("Stop", forState: UIControlState.Normal)
+        mPlayButton.enabled = false
+    }
+    
+    private func stopCapture() {
+        // Stop audio unit
+        let status = AudioOutputUnitStop(mCaptureUnit)
+        if status == noErr {
+            print("stop capturing audio!")
+        } else {
+            print("AudioOutputUnitStop failed: \(status)")
+        }
+        
+        // Deactivate audio session
+        let session = AVAudioSession.sharedInstance()
+        do {
+            try session.setActive(false)
+        } catch {
+            print("AVAudioSession setActivate false failed")
+        }
+        
+        mCapturing = false
+        
+        mCaptureButton.setTitle("Capture", forState: UIControlState.Normal)
+        mPlayButton.enabled = true
+    }
     
 }
 

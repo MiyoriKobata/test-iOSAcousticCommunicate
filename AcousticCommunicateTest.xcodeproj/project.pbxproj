@@ -7,24 +7,16 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		5B0C7D961D3E444D00B0A0C4 /* GenericArithmetic.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B0C7D931D3E444D00B0A0C4 /* GenericArithmetic.swift */; };
-		5B0C7D971D3E444D00B0A0C4 /* NumTypes+Conversion.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B0C7D941D3E444D00B0A0C4 /* NumTypes+Conversion.swift */; };
-		5B0C7D981D3E444D00B0A0C4 /* OOPExceptions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B0C7D951D3E444D00B0A0C4 /* OOPExceptions.swift */; };
+		5B190FAC1D40B985004E5D5C /* WaveGraph.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B190FAB1D40B985004E5D5C /* WaveGraph.swift */; };
 		5B8816921D38C279009E0F8D /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B8816911D38C279009E0F8D /* AppDelegate.swift */; };
 		5B8816941D38C279009E0F8D /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B8816931D38C279009E0F8D /* ViewController.swift */; };
 		5B8816971D38C279009E0F8D /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 5B8816951D38C279009E0F8D /* Main.storyboard */; };
 		5B8816991D38C279009E0F8D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 5B8816981D38C279009E0F8D /* Assets.xcassets */; };
 		5B88169C1D38C279009E0F8D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 5B88169A1D38C279009E0F8D /* LaunchScreen.storyboard */; };
-		5BBAD8E41D3E0B8400E96F7D /* CABitOperations.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5BBAD8E01D3E0B8400E96F7D /* CABitOperations.swift */; };
-		5BBAD8E51D3E0B8400E96F7D /* CADebugMacros.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5BBAD8E11D3E0B8400E96F7D /* CADebugMacros.swift */; };
-		5BBAD8E61D3E0B8400E96F7D /* CAStreamBasicDescription.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5BBAD8E21D3E0B8400E96F7D /* CAStreamBasicDescription.swift */; };
-		5BBAD8E71D3E0B8400E96F7D /* CAXException.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5BBAD8E31D3E0B8400E96F7D /* CAXException.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		5B0C7D931D3E444D00B0A0C4 /* GenericArithmetic.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GenericArithmetic.swift; sourceTree = "<group>"; };
-		5B0C7D941D3E444D00B0A0C4 /* NumTypes+Conversion.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NumTypes+Conversion.swift"; sourceTree = "<group>"; };
-		5B0C7D951D3E444D00B0A0C4 /* OOPExceptions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OOPExceptions.swift; sourceTree = "<group>"; };
+		5B190FAB1D40B985004E5D5C /* WaveGraph.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WaveGraph.swift; sourceTree = "<group>"; };
 		5B88168E1D38C279009E0F8D /* AcousticCommunicateTest.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AcousticCommunicateTest.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		5B8816911D38C279009E0F8D /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		5B8816931D38C279009E0F8D /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -32,10 +24,6 @@
 		5B8816981D38C279009E0F8D /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		5B88169B1D38C279009E0F8D /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		5B88169D1D38C279009E0F8D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		5BBAD8E01D3E0B8400E96F7D /* CABitOperations.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CABitOperations.swift; sourceTree = "<group>"; };
-		5BBAD8E11D3E0B8400E96F7D /* CADebugMacros.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CADebugMacros.swift; sourceTree = "<group>"; };
-		5BBAD8E21D3E0B8400E96F7D /* CAStreamBasicDescription.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CAStreamBasicDescription.swift; sourceTree = "<group>"; };
-		5BBAD8E31D3E0B8400E96F7D /* CAXException.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CAXException.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -49,21 +37,10 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		5B0C7D921D3E444D00B0A0C4 /* OOPUtils */ = {
-			isa = PBXGroup;
-			children = (
-				5B0C7D931D3E444D00B0A0C4 /* GenericArithmetic.swift */,
-				5B0C7D941D3E444D00B0A0C4 /* NumTypes+Conversion.swift */,
-				5B0C7D951D3E444D00B0A0C4 /* OOPExceptions.swift */,
-			);
-			path = OOPUtils;
-			sourceTree = "<group>";
-		};
 		5B8816851D38C279009E0F8D = {
 			isa = PBXGroup;
 			children = (
 				5B8816901D38C279009E0F8D /* AcousticCommunicateTest */,
-				5BBAD8DE1D3E0AF700E96F7D /* OtherSources */,
 				5B88168F1D38C279009E0F8D /* Products */,
 			);
 			sourceTree = "<group>";
@@ -85,28 +62,9 @@
 				5B8816981D38C279009E0F8D /* Assets.xcassets */,
 				5B88169A1D38C279009E0F8D /* LaunchScreen.storyboard */,
 				5B88169D1D38C279009E0F8D /* Info.plist */,
+				5B190FAB1D40B985004E5D5C /* WaveGraph.swift */,
 			);
 			path = AcousticCommunicateTest;
-			sourceTree = "<group>";
-		};
-		5BBAD8DE1D3E0AF700E96F7D /* OtherSources */ = {
-			isa = PBXGroup;
-			children = (
-				5B0C7D921D3E444D00B0A0C4 /* OOPUtils */,
-				5BBAD8DF1D3E0B0F00E96F7D /* PublicUtilities */,
-			);
-			name = OtherSources;
-			sourceTree = "<group>";
-		};
-		5BBAD8DF1D3E0B0F00E96F7D /* PublicUtilities */ = {
-			isa = PBXGroup;
-			children = (
-				5BBAD8E01D3E0B8400E96F7D /* CABitOperations.swift */,
-				5BBAD8E11D3E0B8400E96F7D /* CADebugMacros.swift */,
-				5BBAD8E21D3E0B8400E96F7D /* CAStreamBasicDescription.swift */,
-				5BBAD8E31D3E0B8400E96F7D /* CAXException.swift */,
-			);
-			name = PublicUtilities;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -181,14 +139,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				5BBAD8E41D3E0B8400E96F7D /* CABitOperations.swift in Sources */,
+				5B190FAC1D40B985004E5D5C /* WaveGraph.swift in Sources */,
 				5B8816941D38C279009E0F8D /* ViewController.swift in Sources */,
-				5B0C7D971D3E444D00B0A0C4 /* NumTypes+Conversion.swift in Sources */,
-				5BBAD8E61D3E0B8400E96F7D /* CAStreamBasicDescription.swift in Sources */,
-				5BBAD8E51D3E0B8400E96F7D /* CADebugMacros.swift in Sources */,
-				5B0C7D961D3E444D00B0A0C4 /* GenericArithmetic.swift in Sources */,
-				5B0C7D981D3E444D00B0A0C4 /* OOPExceptions.swift in Sources */,
-				5BBAD8E71D3E0B8400E96F7D /* CAXException.swift in Sources */,
 				5B8816921D38C279009E0F8D /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

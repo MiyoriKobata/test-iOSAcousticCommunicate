@@ -14,23 +14,23 @@
                         <viewControllerLayoutGuide type="bottom" id="wfy-db-euE"/>
                     </layoutGuides>
                     <view key="view" contentMode="scaleToFill" id="8bC-Xf-vdC">
-                        <rect key="frame" x="0.0" y="0.0" width="414" height="736"/>
+                        <rect key="frame" x="0.0" y="0.0" width="736" height="414"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="EHd-iw-cue" userLabel="FrequencyInput">
-                                <rect key="frame" x="107" y="174" width="200" height="30"/>
+                            <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" ambiguous="YES" misplaced="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="EHd-iw-cue" userLabel="FrequencyInput">
+                                <rect key="frame" x="15" y="13" width="100" height="30"/>
                                 <constraints>
-                                    <constraint firstAttribute="width" constant="200" id="05S-QW-hdY"/>
+                                    <constraint firstAttribute="width" constant="100" id="05S-QW-hdY"/>
                                     <constraint firstAttribute="height" constant="30" id="46q-a3-hXk"/>
                                 </constraints>
                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                 <textInputTraits key="textInputTraits"/>
                             </textField>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Ezl-x7-Qzr" userLabel="PlayButton">
-                                <rect key="frame" x="107" y="224" width="200" height="30"/>
+                            <button opaque="NO" contentMode="scaleToFill" ambiguous="YES" misplaced="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Ezl-x7-Qzr" userLabel="PlayButton">
+                                <rect key="frame" x="114" y="13" width="100" height="30"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="30" id="7kT-tv-rIo"/>
-                                    <constraint firstAttribute="width" constant="200" id="ig4-U8-ryk"/>
+                                    <constraint firstAttribute="width" constant="100" id="ig4-U8-ryk"/>
                                 </constraints>
                                 <state key="normal" title="Button"/>
                                 <connections>
@@ -38,22 +38,20 @@
                                 </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" ambiguous="YES" misplaced="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Np0-oE-i0g" userLabel="CaptureButton">
-                                <rect key="frame" x="107" y="314" width="200" height="30"/>
+                                <rect key="frame" x="222" y="13" width="100" height="30"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="30" id="Moc-Mj-5mF"/>
-                                    <constraint firstAttribute="width" constant="200" id="OK7-51-eJT"/>
+                                    <constraint firstAttribute="width" constant="100" id="OK7-51-eJT"/>
                                 </constraints>
                                 <state key="normal" title="Button"/>
+                                <connections>
+                                    <action selector="captureButtonTouchDown:" destination="BYZ-38-t0r" eventType="touchDown" id="8ur-WF-1YU"/>
+                                </connections>
                             </button>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
-                        <constraints>
-                            <constraint firstItem="EHd-iw-cue" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="XmA-Ap-esi"/>
-                            <constraint firstItem="Ezl-x7-Qzr" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="lwQ-1z-1WZ"/>
-                            <constraint firstItem="EHd-iw-cue" firstAttribute="centerY" secondItem="8bC-Xf-vdC" secondAttribute="centerY" constant="-179" id="pzl-Qj-TtE"/>
-                            <constraint firstItem="Ezl-x7-Qzr" firstAttribute="centerY" secondItem="8bC-Xf-vdC" secondAttribute="centerY" constant="-129" id="tJq-3D-smK"/>
-                        </constraints>
                     </view>
+                    <simulatedOrientationMetrics key="simulatedOrientationMetrics" orientation="landscapeRight"/>
                     <simulatedScreenMetrics key="simulatedDestinationMetrics" type="retina55"/>
                     <connections>
                         <outlet property="mCaptureButton" destination="Np0-oE-i0g" id="8GJ-aF-WEa"/>
@@ -63,6 +61,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
+            <point key="canvasLocation" x="245" y="364"/>
         </scene>
     </scenes>
 </document>
