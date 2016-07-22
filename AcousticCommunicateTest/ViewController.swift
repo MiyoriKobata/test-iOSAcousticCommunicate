@@ -10,46 +10,47 @@ import UIKit
 import AudioToolbox
 import AudioUnit
 import AVFoundation
-// import Accelerate
 
 
 @objc class ViewController: UIViewController {
 
     let SAMPLE_RATE = 44100.0;
-    let FFT_SAMPLE_SIZE = 256;
+    let FFT_SIZE = 128;
+    let DRAW_INTERVAL = 0.03
     
     
-    @IBOutlet weak var mFrequenctyInputField: UITextField!
+    @IBOutlet weak var mFrequenctyTextField: UITextField!
     @IBOutlet weak var mPlayButton: UIButton!
     @IBOutlet weak var mCaptureButton: UIButton!
+    @IBOutlet weak var mFFTSwitch: UISwitch!
     
     var mWaveGraph: WaveGraph?
+    var mDrawTimer: NSTimer?
+    var mFFTCalculator: FFTCalculator?
     
     
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
         
+        // init and add WaveGraph
         let w = view.bounds.width
         let h = view.bounds.height
         mWaveGraph = WaveGraph(frame: CGRect(x: 0.0, y: 50.0, width: w, height: h - 50.0))
-        mWaveGraph?.setup(100)
+        mWaveGraph!.setup(FFT_SIZE)
 
         view.addSubview(mWaveGraph!)
         
-        mFrequenctyInputField.text = String(mFrequency)
+        // init FFTCalculator
+        mFFTCalculator = FFTCalculator(fftSize: FFT_SIZE)
+        
+        mFrequenctyTextField.text = String(mFrequency)
         mPlayButton.setTitle("Play", forState: UIControlState.Normal)
         mCaptureButton.setTitle("Capture", forState: UIControlState.Normal)
         
         initPlayUnit()
         initCaptureUnit()
         setupAudioSession()
-        
-        NSTimer.scheduledTimerWithTimeInterval(0.1, // 0.03,
-                                               target: self,
-                                               selector: #selector(drawWaveGraph(_:)),
-                                               userInfo: nil,
-                                               repeats: true)
     }
     
     private func setupAudioSession() {
@@ -73,12 +74,28 @@ import AVFoundation
     }
     
     func drawWaveGraph(timer: NSTimer) {
-        mWaveGraph?.setNeedsDisplay()
+        mWaveGraph!.setNeedsDisplay()
     }
     
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
+    }
+    
+    override func touchesBegan(touches: Set<UITouch>, withEvent event: UIEvent?) {
+        view.endEditing(true)
+    }
+    
+    @IBAction func fftSwitchValueChanged(sender: AnyObject) {
+        if mFFTSwitch.on {
+            mWaveGraph!.scaleX = 2
+            mWaveGraph!.scaleY = 1
+            mWaveGraph!.offsetY = 1
+        } else {
+            mWaveGraph!.scaleX = 1
+            mWaveGraph!.scaleY = 0.5
+            mWaveGraph!.offsetY = 0.5
+        }
     }
     
     
@@ -172,7 +189,7 @@ import AVFoundation
         var phase = mPhase
         let delta = mFrequency * M_PI * 2 / SAMPLE_RATE
         
-        // Iterate all samples
+        // Iterate and write samples
         for i in 0 ..< numFrames {
             buffer[i] = Float(sin(phase))
             phase += delta
@@ -180,20 +197,37 @@ import AVFoundation
         
         mPhase = fmod(phase, M_PI * 2)
         
-        mWaveGraph?.writeBuffer(buffer, length: numFrames)
+        // Send to WaveGraph
+        if mFFTSwitch.on {
+            if numFrames >= mFFTCalculator?.fftSize {
+                mFFTCalculator!.calculate(buffer)
+                mWaveGraph!.writeBuffer(mFFTCalculator!.output, length: mFFTCalculator!.outputSize)
+//                mWaveGraph!.scaleX = 2
+            }
+        } else {
+            mWaveGraph!.writeBuffer(buffer, length: numFrames)
+        }
         
         return noErr
     }
     
     @IBAction func playButtonTouchDown(sender: AnyObject) {
         if !mPlaying {
-            if let frequency = Double(mFrequenctyInputField.text!) {
+            if let frequency = Double(mFrequenctyTextField.text!) {
                 mFrequency = frequency
             }
-            
             startPlay()
+            
+            mDrawTimer = NSTimer.scheduledTimerWithTimeInterval(DRAW_INTERVAL,
+                                                                target: self,
+                                                                selector: #selector(drawWaveGraph(_:)),
+                                                                userInfo: nil,
+                                                                repeats: true)
         } else {
             stopPlay()
+            
+            mDrawTimer!.invalidate()
+            mDrawTimer = nil
         }
     }
     
@@ -253,6 +287,11 @@ import AVFoundation
         mCaptureButton.enabled = true
     }
     
+    @IBAction func textFieldEditingChanged(sender: AnyObject) {
+        if let frequency = Double(mFrequenctyTextField.text!) {
+            mFrequency = frequency
+        }
+    }
     
     // -- implementations for capturing audio --
     
@@ -386,7 +425,15 @@ import AVFoundation
     private func renderCaptureBuffer(buffer: UnsafeMutablePointer<Float>, numFrames: Int) -> OSStatus {
         // need DC rejection ??
         
-        mWaveGraph?.writeBuffer(buffer, length: numFrames)
+        // Send to WaveGraph
+        if mFFTSwitch.on {
+            if numFrames >= mFFTCalculator?.fftSize {
+                mFFTCalculator!.calculate(buffer)
+                mWaveGraph!.writeBuffer(mFFTCalculator!.output, length: mFFTCalculator!.outputSize)
+            }
+        } else {
+            mWaveGraph!.writeBuffer(buffer, length: numFrames)
+        }
         
         return noErr
     }
@@ -394,8 +441,17 @@ import AVFoundation
     @IBAction func captureButtonTouchDown(sender: AnyObject) {
         if !mCapturing {
             startCapture()
+            
+            mDrawTimer = NSTimer.scheduledTimerWithTimeInterval(DRAW_INTERVAL,
+                                                                target: self,
+                                                                selector: #selector(drawWaveGraph(_:)),
+                                                                userInfo: nil,
+                                                                repeats: true)
         } else {
             stopCapture();
+            
+            mDrawTimer!.invalidate()
+            mDrawTimer = nil
         }
     }
     

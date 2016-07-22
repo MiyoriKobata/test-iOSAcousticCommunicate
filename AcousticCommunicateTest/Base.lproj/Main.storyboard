@@ -24,7 +24,10 @@
                                     <constraint firstAttribute="height" constant="30" id="46q-a3-hXk"/>
                                 </constraints>
                                 <fontDescription key="fontDescription" type="system" pointSize="14"/>
-                                <textInputTraits key="textInputTraits"/>
+                                <textInputTraits key="textInputTraits" keyboardType="numberPad"/>
+                                <connections>
+                                    <action selector="textFieldEditingChanged:" destination="BYZ-38-t0r" eventType="editingChanged" id="PUM-sk-DXb"/>
+                                </connections>
                             </textField>
                             <button opaque="NO" contentMode="scaleToFill" ambiguous="YES" misplaced="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Ezl-x7-Qzr" userLabel="PlayButton">
                                 <rect key="frame" x="114" y="13" width="100" height="30"/>
@@ -48,6 +51,12 @@
                                     <action selector="captureButtonTouchDown:" destination="BYZ-38-t0r" eventType="touchDown" id="8ur-WF-1YU"/>
                                 </connections>
                             </button>
+                            <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="gsD-Ez-GUI">
+                                <rect key="frame" x="344" y="12" width="51" height="31"/>
+                                <connections>
+                                    <action selector="fftSwitchValueChanged:" destination="BYZ-38-t0r" eventType="valueChanged" id="x93-UL-Hn6"/>
+                                </connections>
+                            </switch>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                     </view>
@@ -55,7 +64,8 @@
                     <simulatedScreenMetrics key="simulatedDestinationMetrics" type="retina55"/>
                     <connections>
                         <outlet property="mCaptureButton" destination="Np0-oE-i0g" id="8GJ-aF-WEa"/>
-                        <outlet property="mFrequenctyInputField" destination="EHd-iw-cue" id="3pX-F8-wsz"/>
+                        <outlet property="mFFTSwitch" destination="gsD-Ez-GUI" id="s1p-dl-tWt"/>
+                        <outlet property="mFrequenctyTextField" destination="EHd-iw-cue" id="PHU-s3-IID"/>
                         <outlet property="mPlayButton" destination="Ezl-x7-Qzr" id="I5l-b2-ISx"/>
                     </connections>
                 </viewController>

@@ -10,7 +10,8 @@ import UIKit
 
 class WaveGraph: UIView {
     var scaleX = 1.0
-    var scaleY = 1.0
+    var scaleY = 0.5
+    var offsetY = 0.5
     
     
     private var mBuffer: UnsafeMutablePointer<Float> = nil
@@ -71,8 +72,8 @@ class WaveGraph: UIView {
                 continue;
             }
 
-            point.x = CGFloat(index) * CGFloat(bounds.width) * CGFloat(scaleX) / CGFloat(mBufferSize)
-            point.y = (0.5 - CGFloat(value) * 0.5 * CGFloat(scaleY)) * bounds.height
+            point.x = CGFloat(Double(index) * scaleX / Double(mBufferSize)) * bounds.width
+            point.y = CGFloat(Double(-value) * scaleY + offsetY) * bounds.height
 
             if numPoints == 0 {
                 line.moveToPoint(point)

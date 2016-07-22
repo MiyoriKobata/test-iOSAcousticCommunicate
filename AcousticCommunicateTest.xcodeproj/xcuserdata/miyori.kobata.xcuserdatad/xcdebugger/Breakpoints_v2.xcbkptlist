@@ -9,13 +9,29 @@
             shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "AcousticCommunicateTest/ViewController.swift"
-            timestampString = "490866912.485352"
+            filePath = "AcousticCommunicateTest/WaveGraph.swift"
+            timestampString = "490875007.5255"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "391"
-            endingLineNumber = "391"
-            landmarkName = "renderCaptureBuffer(_:numFrames:)"
+            startingLineNumber = "78"
+            endingLineNumber = "78"
+            landmarkName = "drawRect(_:)"
+            landmarkType = "5">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "AcousticCommunicateTest/FFTHelper.swift"
+            timestampString = "490872125.047363"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "75"
+            endingLineNumber = "75"
+            landmarkName = "calculate(_:)"
             landmarkType = "5">
          </BreakpointContent>
       </BreakpointProxy>
@@ -25,13 +41,29 @@
             shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "AcousticCommunicateTest/WaveGraph.swift"
-            timestampString = "490863949.089163"
+            filePath = "AcousticCommunicateTest/ViewController.swift"
+            timestampString = "490876082.103008"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "77"
-            endingLineNumber = "77"
-            landmarkName = "drawRect(_:)"
+            startingLineNumber = "292"
+            endingLineNumber = "292"
+            landmarkName = "textFieldEditingChanged(_:)"
+            landmarkType = "5">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "AcousticCommunicateTest/ViewController.swift"
+            timestampString = "490876082.103008"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "291"
+            endingLineNumber = "291"
+            landmarkName = "textFieldEditingChanged(_:)"
             landmarkType = "5">
          </BreakpointContent>
       </BreakpointProxy>
